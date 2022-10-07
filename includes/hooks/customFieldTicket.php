@@ -1,9 +1,10 @@
 <?php
 
-use WHMCS\Database\Capsule;
+use WHMCS\Support\Ticket;
+use WHMCS\CustomField\CustomFieldValue;
 
 /**
- * Decrypt Custom Fields in Tickets
+ * WHMCS Decrypt Custom Fields in Tickets
  *
  * A hack to show the decrypted version of password custom fields in tickets to the client
  * 
@@ -13,7 +14,7 @@ use WHMCS\Database\Capsule;
  * @author     Lee Mahoney <lee@leemahoney.dev>
  * @copyright  Copyright (c) Lee Mahoney 2022
  * @license    MIT License
- * @version    1.0.0
+ * @version    1.0.2
  * @link       https://leemahoney.dev
  */
 
@@ -24,7 +25,7 @@ function decrypt_custom_fields_in_tickets($vars) {
     $excludeFields = [];
     
     # Grab the actual ID of the ticket (thanks WHMCS, you'd think a reference to this would be made on a 'view ticket' page)
-    $ticketID = Capsule::table('tbltickets')->where('tid', $_GET['tid'])->first()->id;
+    $ticketID = Ticket::where('tid', $_GET['tid'])->first()->id;
 
     # Start the JavaScript code
     $script = "<script type='text/javascript'>
@@ -45,7 +46,7 @@ function decrypt_custom_fields_in_tickets($vars) {
         }
 
         # Grab the actual encrypted data for that field (in the smarty template variables it will just be ****** which is of no good)
-        $value = Capsule::table('tblcustomfieldsvalues')->where(['fieldid' => $field['id'], 'relid' => $ticketID])->first();
+        $value = CustomFieldValue::where(['fieldid' => $field['id'], 'relid' => $ticketID])->first();
 
         # Only continue if we have a result
         if (count($value)) {
